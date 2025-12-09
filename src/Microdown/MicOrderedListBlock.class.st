@@ -52,12 +52,6 @@ MicOrderedListBlock >> addLineAndReturnNextNode: line [
 	^ super addLineAndReturnNextNode: line
 ]
 
-{ #category : 'accessing' }
-MicOrderedListBlock >> bodyString [
-	
-	^ String streamContents: [ :str | children do: [ :each | str nextPutAll: each bodyString ] ]
-]
-
 { #category : 'testing' }
 MicOrderedListBlock >> canConsumeLine: line [
 	"to consume this line there must be a UnorderdListItem start at the right indentation"
@@ -74,6 +68,5 @@ MicOrderedListBlock >> startIndex [
 { #category : 'accessing' }
 MicOrderedListBlock >> startIndexFrom: line [
 	startIndex ifNotNil: [ ^self ].
-	"an ordered list line starts with the index and after a dot '.' "
-	startIndex := line microdownExtractPartOfInteger
+	startIndex := line asInteger
 ]

@@ -212,16 +212,8 @@ MicrodownParser >> blockStarterClassFrom: line [
 			but this is to try. Once we understand and probably change the environment syntax for now it is <!
 			and this conflict with <!-- obviously. Too bad!
 			we will be able to make this huge hack goes away."
-
 			(line first = $< and: [ 
-					" pay attention the micsharedpool includes p and p>, i and i> 
-					This is working p src=800 
-					"
-					
-					(line includes: Character space)
-						ifTrue: [ HTMLTags includes: ((line allButFirst splitOnFirst: Character space) first) ]
-						ifFalse: [ HTMLTags includes: ((line allButFirst splitOnFirst: $>) first) ]
-						])
+					(ThreeLettersHTMLTags includes: (line allButFirst truncateTo: 3)) ])
 				ifTrue: [ 
 					"we have a rawparagraph block" 
 					^ MicRawParagraphBlock 

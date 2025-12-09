@@ -44,7 +44,10 @@ This is important for better column support in the future:
 "
 Class {
 	#name : 'MicEnvironmentBlock',
-	#superclass : 'MicNestedMarkupBlock',
+	#superclass : 'MicStartStopMarkupBlock',
+	#instVars : [
+		'arguments'
+	],
 	#category : 'Microdown-Model',
 	#package : 'Microdown',
 	#tag : 'Model'
@@ -89,8 +92,55 @@ MicEnvironmentBlock class >> buildMicroDownUsing: aBuilder withComment: aString 
 
 { #category : 'visiting' }
 MicEnvironmentBlock >> accept: aVisitor [
-
  	^ aVisitor visitEnvironment: self
+]
+
+{ #category : 'handle' }
+MicEnvironmentBlock >> addLineAndReturnNextNode: line [
+	"add line to this node. 
+	Notice, the action is allowed to create new nodes in the block tree.
+	Returns the node to handle next line - typically self."
+	
+	
+	| withoutPreTabs |
+	isClosed
+		ifTrue: [ ^ self ].
+	withoutPreTabs := line withoutPreTabs.
+	"Here the withoutPreTabs is probably not necessary because handlingPrefixTabOfLine: should do its job."
+	(self doesLineStartWithStopMarkup: withoutPreTabs)
+		ifTrue: [ ^ self ].
+	firstLine
+		ifNil:
+			[ firstLine := self extractFirstLineFrom: withoutPreTabs ]
+		ifNotNil: [ ^ self bodyFromLine: withoutPreTabs ].
+	^ self
+]
+
+{ #category : 'accessing' }
+MicEnvironmentBlock >> arguments [
+	
+	^ arguments
+]
+
+{ #category : 'accessing' }
+MicEnvironmentBlock >> body [
+
+	^ String streamContents: [:s |  self bodyElements do: [ :each | s nextPutAll: each substring ] ]
+]
+
+{ #category : 'accessing' }
+MicEnvironmentBlock >> bodyElements [
+
+	^ children
+]
+
+{ #category : 'accessing' }
+MicEnvironmentBlock >> bodyFromLine: line [
+	
+	| newBlock |
+	newBlock := (self newBlockFor: line parent: self).
+	self parser setCurrent: newBlock.
+	^ newBlock
 ]
 
 { #category : 'parse support' }
@@ -102,13 +152,15 @@ MicEnvironmentBlock >> closeMe [
 		body :=  self inlineParse: body ].
 	children := body"
 	
-	"Pay attention closeMe is invoked during parse time and some conversions are creating environment without going over the parser
-	For example the # Header to Slide is a typically case. "
-	
 	arguments := MicArgumentList 
 		split: firstLine
 		defaultArg: #environmentName
 		defaultValue: ''.
+]
+
+{ #category : 'accessing' }
+MicEnvironmentBlock >> environmentName [
+	^ arguments at: #environmentName
 ]
 
 { #category : 'accessing' }
@@ -125,4 +177,30 @@ MicEnvironmentBlock >> extractFirstLineFrom: aLine [
 			isClosed := true.
 			extract trimRight ]
 		ifFalse: [ firstLine ]
+]
+
+{ #category : 'initialization' }
+MicEnvironmentBlock >> initialize [
+
+	super initialize.
+	arguments := MicArgumentList new 
+		
+]
+
+{ #category : 'markups' }
+MicEnvironmentBlock >> lineStartMarkup [
+
+	^ EnvironmentOpeningBlockMarkup 
+]
+
+{ #category : 'markups' }
+MicEnvironmentBlock >> lineStopMarkup [
+	
+	^ EnvironmentClosingBlockMarkup 
+]
+
+{ #category : 'handle' }
+MicEnvironmentBlock >> massageLine: aLine [
+
+	^ aLine withoutPreTabs
 ]

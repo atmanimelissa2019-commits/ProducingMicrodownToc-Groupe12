@@ -78,12 +78,6 @@ MicListItemBlock >> addLineAndReturnNextNode: line [
 			text := text , String cr , normalized ]
 ]
 
-{ #category : 'accessing' }
-MicListItemBlock >> bodyString [
-	"I am used to make it easier to write tests"
-	^ String streamContents: [ :str | children do: [ :each | str nextPutAll: each bodyString ] ]
-]
-
 { #category : 'testing' }
 MicListItemBlock >> canConsumeLine: line [
 	"return if this block can consume line"
