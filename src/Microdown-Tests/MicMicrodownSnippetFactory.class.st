@@ -858,16 +858,6 @@ a{{Foo}}b
 '
 ]
 
-{ #category : 'rawParagraph' }
-MicMicrodownSnippetFactory >> rawParagraphSimpleDiv [
-
-	^ '<div>
-some text 
-and 
-more
-</div>'
-]
-
 { #category : 'figures' }
 MicMicrodownSnippetFactory >> realLinkSample [
 	^ '

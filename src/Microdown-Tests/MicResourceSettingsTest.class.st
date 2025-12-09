@@ -140,6 +140,15 @@ MicResourceSettingsTest >> testIsOfflineTrueNotFound [
 ]
 
 { #category : 'tests' }
+MicResourceSettingsTest >> testOnlyOneMethodInMicrodownDefinesSettings [
+	| all |
+	all :=(Pragma allNamed: #systemsettings) 
+		collect: [ :pragma | pragma methodClass ].
+	all := all select: [ :class | class package name beginsWith: 'Microdown' ].
+	self assert: all size equals: 1
+]
+
+{ #category : 'tests' }
 MicResourceSettingsTest >> testThereAreTwoSettings [
 	"I am an approximation, just making sure the two class variables exist"
 	self assert: subject classVarNames equals: #(IsCachingResources Offline)

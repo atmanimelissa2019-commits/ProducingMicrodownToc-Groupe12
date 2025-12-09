@@ -89,10 +89,3 @@ MicHeaderBlock >> level: anInteger [
 
 
 ]
-
-{ #category : 'printing' }
-MicHeaderBlock >> printOn: aStream [
-
-	super printOn: aStream.
-	aStream nextPutAll: ' - ', self header
-]

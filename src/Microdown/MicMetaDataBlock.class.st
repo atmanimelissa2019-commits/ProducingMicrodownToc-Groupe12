@@ -38,33 +38,8 @@ MicMetaDataBlock >> accept: aVisitor [
 ]
 
 { #category : 'accessing' }
-MicMetaDataBlock >> at: aString [ 
-	^ self body at: aString
-]
-
-{ #category : 'accessing' }
-MicMetaDataBlock >> at: aString ifAbsent: aBlock [
-	^ self body at: aString ifAbsent: aBlock
-]
-
-{ #category : 'accessing' }
-MicMetaDataBlock >> at: aString ifPresent: aPresentBlock ifAbsent: aBlock [
-	^ self body at: aString ifPresent: aPresentBlock ifAbsent: aBlock
-]
-
-{ #category : 'accessing' }
-MicMetaDataBlock >> at: aString put: aString2 [ 
-	self body at: aString put: aString2 
-]
-
-{ #category : 'accessing' }
 MicMetaDataBlock >> atKey: aString [ 
 	^ self body at: aString
-]
-
-{ #category : 'accessing' }
-MicMetaDataBlock >> atKey: aString ifAbsent: aBlock [
-	^ self body at: aString ifAbsent: aBlock
 ]
 
 { #category : 'accessing' }
@@ -81,7 +56,6 @@ MicMetaDataBlock >> bogusParsing [
 { #category : 'markups' }
 MicMetaDataBlock >> closeMe [ 
 	super closeMe.
-	body ifNil:[ body := ''].
 	body := [ STONJSON fromString: '{', body, '}' ] on: Error do: [ :ex |
 		| dict |
 		bogusParsing := true.

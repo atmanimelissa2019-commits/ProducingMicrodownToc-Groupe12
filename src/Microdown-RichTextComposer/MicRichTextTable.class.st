@@ -23,10 +23,7 @@ MicRichTextTable >> addHeaders: headers with: renderedRows [
 	totalHeight := 0.
 	1 to: headers size do:[ :colIndex | |header colRows colWidth colHeight|
 		header := headers at: colIndex.
-		colRows := renderedRows collect: [ :row |
-			(row size >= colIndex)
-				ifFalse: [ row add: '' asText ].
-			row at: colIndex ].
+		colRows := renderedRows collect: [ :row | row at: colIndex  ].
 		colWidth := (header asTextMorph width) 
 					max: (colRows collect: [:cell| cell asTextMorph width]) max.
 		totalWidth := totalWidth + colWidth.

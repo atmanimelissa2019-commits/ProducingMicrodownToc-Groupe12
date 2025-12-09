@@ -31,18 +31,6 @@ a paragraph on two lines**'.
 ]
 
 { #category : 'tests' }
-MicParagraphBlockTest >> testASimpleRawParagaaph [
-
-	| mic |
-	mic := (parser parse: '<title> 
-No idea what it is :)
-</title>') children first.
-	self assert: mic class equals: MicRawParagraphBlock. 
-	self assert: mic label equals: 'title'.
-
-]
-
-{ #category : 'tests' }
 MicParagraphBlockTest >> testBoldMultipleLinesWithNewLine [
 
 	| root |
