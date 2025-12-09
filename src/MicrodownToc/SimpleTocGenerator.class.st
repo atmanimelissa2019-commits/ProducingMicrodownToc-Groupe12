@@ -3,7 +3,9 @@ Class {
 	#superclass : 'MicrodownVisitor',
 	#instVars : [
 		'builder',
-		'showOnlyAbove'
+		'showOnlyAbove',
+		'counter',
+		'numbered'
 	],
 	#category : 'MicrodownToc',
 	#package : 'MicrodownToc'
@@ -19,6 +21,12 @@ SimpleTocGenerator >> initialize [
 super initialize.
 builder := MicMicrodownTextualBuilder new.
 showOnlyAbove := 0. 
+
+]
+
+{ #category : 'instance creation' }
+SimpleTocGenerator >> new [
+    self error: 'Abstract class - cannot be instantiated'
 
 ]
 
@@ -39,14 +47,17 @@ SimpleTocGenerator >> visit: aDocument [
 
 ]
 
-{ #category : 'initialization' }
+{ #category : 'visiting' }
 SimpleTocGenerator >> visitHeader: aHeader [
-	| hashtags |
+	^ self
+
+]
+
+{ #category : 'initialization' }
+SimpleTocGenerator >> visitHeader: aHeader prefix: aPrefix [
 	aHeader level >= showOnlyAbove
  	ifFalse: [ ^ self ].
-	hashtags:= ''.
-	1 to: aHeader level do: [ :i | hashtags:= hashtags , '#'].
-	builder nextPutAll: (hashtags , ' ' , aHeader text , String cr).
+	builder nextPutAll: (aPrefix asString , ' ' , aHeader text , String cr).
 	^ self
 
 ]
