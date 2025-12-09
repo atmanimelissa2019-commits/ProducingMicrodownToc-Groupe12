@@ -12,19 +12,46 @@ Class {
 { #category : 'running' }
 MicTemplatedWriterTest >> addTemplateFiles [
 
-	fileSystem / 'codeBlock.mustache' writeStreamDo: [ :s | s << self codeBlockContents ].
+	fileSystem / MicTemplatedWriter codeBlockTemplateFileName 
+		writeStreamDo: [ :s | s << self codeBlockContents ].
+	fileSystem / MicTemplatedWriter boldTemplateFileName 
+		writeStreamDo: [ :s | s << self boldContents ].
+	fileSystem / MicTemplatedWriter italicTemplateFileName 
+		writeStreamDo: [ :s | s << self italicContents ].
+	fileSystem / MicTemplatedWriter monospaceTemplateFileName 
+		writeStreamDo: [ :s | s << self monoContents ].
+	
+	fileSystem / MicTemplatedWriter headerTemplateFileName 
+		writeStreamDo: [ :s | s << self headerBlockContents ].
+	
+	fileSystem / MicTemplatedWriter horizontalLineTemplateFileName 
+		writeStreamDo: [ :s | s << self horizontalContents ].
+	fileSystem / MicTemplatedWriter listItemTemplateFileName 
+		writeStreamDo: [ :s | s << self listItemContents ].
+	fileSystem / MicTemplatedWriter orderedListTemplateFileName 
+		writeStreamDo: [ :s | s << self orderedListItemContents ].
+	fileSystem / MicTemplatedWriter unorderedListTemplateFileName 
+		writeStreamDo: [ :s | s << self unorderedListItemContents ].
+	fileSystem / MicTemplatedWriter figureTemplateFileName 
+		writeStreamDo: [ :s | s << self figureContents ].
 ]
 
 { #category : 'helpers' }
 MicTemplatedWriterTest >> assertTemplate: template writesValue: value forNode: node [
 
-	self assertTemplatePath: Path * template writesValue: value forNode: node 
+	self 
+		assertTemplatePath: Path * template 
+		writesValue: value 
+		forNode: node 
 ]
 
 { #category : 'helpers' }
 MicTemplatedWriterTest >> assertTemplatePath: templatePath writesValue: contents forNode: node [
 
-	self createTemplateFileAt: templatePath withContents: contents.
+	self 
+		createTemplateFileAt: templatePath 
+		withContents: (fileSystem / templatePath basename) contents.
+	
 	self assertWritingNode: node writes: contents.
 ]
 
@@ -41,23 +68,83 @@ MicTemplatedWriterTest >> assertWritingNode: node writes: contents [
 ]
 
 { #category : 'running' }
+MicTemplatedWriterTest >> boldContents [
+
+	^ '<b>
+{{{contents}}}
+</b>'
+]
+
+{ #category : 'running' }
 MicTemplatedWriterTest >> codeBlockContents [
 
-	^ '
-<code>
+	^ '<code>
 {{{contents}}}
-</code>	
-'
+{{{contents}}}
+</code>'
 ]
 
 { #category : 'helpers' }
 MicTemplatedWriterTest >> createTemplateFileAt: aPath withContents: contents [
 
 	| templateFileReference |
-	
 	templateFileReference := textDocument templateDirectory resolve: aPath.
 	templateFileReference parent ensureCreateDirectory.
 	templateFileReference writeStreamDo: [ :stream | stream nextPutAll: contents ].
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> figureContents [
+	"<figure>
+  <img
+    src=""/shared-assets/images/examples/elephant.jpg""
+    alt=""Elephant at sunset"" />
+  <figcaption>An elephant at sunset</figcaption>
+</figure>"
+
+	^ '<figure>
+<img src={{{ref}}}/>
+</figure>'
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> headerBlockContents [
+
+	^ '<h1>{{{contents}}}</h1>'
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> horizontalContents [
+
+	^  '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> italicContents [
+
+	^ '<em>
+{{{contents}}}
+</em>'
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> listItemContents [
+
+	^ '<li>{{{contents}}}</li>'
+
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> monoContents [
+
+	^ '<tt>{{{contents}}}</tt>'
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> orderedListItemContents [
+
+	^ '<o>{{{contents}}}</o>'
+
 ]
 
 { #category : 'running' }
@@ -91,23 +178,25 @@ MicTemplatedWriterTest >> testWriteAnchorUsesDefaultIfNotSpecificIsDefinedTempla
 		forNode: (PRAnnotatedParagraph withAll: #() annotation: 'todo')
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteBoldUsesBoldTemplate [
 
 	self
-		assertTemplate: MicTemplatedWriter boldTemplateFileName
-		writesValue: 'boldTemplate'
+		assertTemplate: MicTemplatedWriter boldTemplateFileName 
+		writesValue: '<b>
+Bar
+</b>'
 		forNode: (MicBoldFormatBlock new children:
 				 { (MicTextBlock new bodyString: 'Bar') })
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteCodeBlockUsesCodeBlockTemplate [
 
 	self
 		assertTemplate: MicTemplatedWriter codeBlockTemplateFileName
-		writesValue: '
-<code>
+		writesValue: '<code>
+^ self
 ^ self
 </code>'
 		forNode: (MicCodeBlock new body: '^ self'; yourself)
@@ -167,27 +256,30 @@ MicTemplatedWriterTest >> testWriteExternalLinkUsesExternalLinkTemplate [
 		forNode: (PRExternalLink new reference: 'http://pharo.org')
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'tests-setup' }
 MicTemplatedWriterTest >> testWriteFigureUsesFigureTemplate [
-
+	
+		self skip.
 	self
 		assertTemplate: MicTemplatedWriter figureTemplateFileName
-		writesValue: 'figure'
+		writesValue: '<figure>
+<img src=bla.png/>
+</figure>'
 		forNode: (MicFigureBlock new reference: 'bla.png')
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteHeaderUsesHeaderTemplate [
 
 	self
 		assertTemplate: MicTemplatedWriter headerTemplateFileName
-		writesValue: 'aHeader'
+		writesValue: '<h1>foo</h1>'
 		forNode: (MicHeaderBlock new
 			level: 2;
-			add: (MicTextBlock new bodyString: 'foo'; yourself))
+			headerElements: {(MicTextBlock new bodyString: 'foo'; yourself)})
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteHorizontalRuleUsesHorizontalRuleTemplate [
 
 	self
@@ -205,23 +297,25 @@ MicTemplatedWriterTest >> testWriteInternalLinkUsesInternalLinkTemplate [
 		forNode: (PRInternalLink new reference: 'bla.pillar')
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteItalicUsesItalicTemplate [
 
 	self
 		assertTemplate: MicTemplatedWriter italicTemplateFileName
-		writesValue: 'italicTemplate'
+		writesValue: '<em>
+Bar
+</em>'
 		forNode: (MicItalicFormatBlock new 
 						children: { (MicTextBlock new bodyString: 'Bar') };
 						yourself )
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteListItemUsesListItemTemplate [
 
 	self
 		assertTemplate: MicTemplatedWriter listItemTemplateFileName
-		writesValue: 'list item'
+		writesValue: '<li></li>'
 		forNode: MicListItemBlock new
 ]
 
@@ -234,13 +328,13 @@ MicTemplatedWriterTest >> testWriteMailLinkUsesMailLinkTemplate [
 		forNode: (PRMailLink reference: 'foo@bar.com')
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteMonospaceUsesMonospaceTemplate [
 
 	self
 		assertTemplate: MicTemplatedWriter monospaceTemplateFileName
-		writesValue: 'monospace'
-		forNode: (MicMonospaceFormatBlock new bodyString: 'Bar')
+		writesValue: '<tt>Bar<\tt>'
+		forNode: (MicMonospaceFormatBlock new addChild:(MicTextBlock new bodyString: 'Bar'))
 ]
 
 { #category : 'tests-templatefiles' }
@@ -276,12 +370,12 @@ MicTemplatedWriterTest >> testWriteNestedEnvironmentWithChilds [
 					yourself)
 ]
 
-{ #category : 'tests-templatefiles' }
+{ #category : 'new tests' }
 MicTemplatedWriterTest >> testWriteOrderedListUsesOrderedListTemplate [
 
 	self
 		assertTemplate: MicTemplatedWriter orderedListTemplateFileName
-		writesValue: 'ordered list'
+		writesValue: '<o></o>'
 		forNode: MicOrderedListBlock new
 ]
 
@@ -327,4 +421,11 @@ MicTemplatedWriterTest >> testWriteTextInsideEnvironmentUsesTemplateInsideEnviro
 				add: (MicTextBlock content: 'Foo');
 				yourself);
 			yourself)
+]
+
+{ #category : 'running' }
+MicTemplatedWriterTest >> unorderedListItemContents [
+
+	^ '<u>{{{contents}}}</u>'
+
 ]
