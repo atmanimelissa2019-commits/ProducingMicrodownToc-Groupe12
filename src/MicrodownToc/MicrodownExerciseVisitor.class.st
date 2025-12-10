@@ -71,28 +71,36 @@ MicrodownExerciseVisitor >> visit: aDocument [
 
 { #category : 'initialization' }
 MicrodownExerciseVisitor >> visitCode: aBlock [
-	| info anchor |
+    | info anchor fileName |
 
-	info := aBlock mainExtensionTag.
+    info := aBlock mainExtensionTag.
 
-	(info notNil and: [ info includesSubstring: 'exercise' ])
-		ifFalse: [ ^ super visitCode: aBlock ].
+    (info notNil and: [ info includesSubstring: 'exercise' ])
+        ifFalse: [ ^ super visitCode: aBlock ].
 
-	anchor := (info substrings: '=') last.
-	builder nextPutAll: '```exercise', String cr.
-	builder nextPutAll: aBlock code lines first, String cr.
-	builder nextPutAll: 'Your code', String cr.
-	builder nextPutAll: '```', String cr.
-	solution nextPutAll:
-		'Here is the solution of the code @', anchor,
-		'@ in Chapter @', chaptername , '@', String cr.
+    anchor := (info substrings: '=') last.
+    builder nextPutAll: '```exercise', String cr.
+    builder nextPutAll: aBlock code lines first, String cr.
+    builder nextPutAll: '… Your code …', String cr.
+    builder nextPutAll: '```', String cr.
 
-	solution nextPutAll: '```', String cr.
-	solution nextPutAll: aBlock code.
-	solution nextPutAll: String cr, '```', String cr.
-	
+    solution := WriteStream on: String new.
 
-	^ self
+    solution nextPutAll:
+        'Here is the solution of the code @', anchor,
+        '@ in Chapter @', chaptername, '@', String cr.
+
+    solution nextPutAll: '```', String cr.
+    solution nextPutAll: aBlock code.
+    solution nextPutAll: String cr.
+    solution nextPutAll: '```', String cr.
+
+    
+    fileName := anchor , 'Solutions.md'.
+
+    self exportText: solution contents toFileNamed: fileName.
+
+    ^ self
 
 ]
 
